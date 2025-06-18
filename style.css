@@ -53,6 +53,18 @@ button:hover {
   background-color: #357abd;
 }
 
+.small-btn {
+  background-color: #aa2222;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  margin-top: 20px;
+  border-radius: 6px;
+}
+
+.small-btn:hover {
+  background-color: #881818;
+}
+
 input[type="text"] {
   padding: 8px 10px;
   font-size: 1rem;
