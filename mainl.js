@@ -1,283 +1,570 @@
-const miniGame = document.getElementById("miniGame");
-const startGameBtn = document.getElementById("startGameBtn");
-const knowledgeSection = document.getElementById("knowledgeSection");
-const knowledgeText = document.getElementById("knowledgeText");
-const nextGameBtn = document.getElementById("nextGameBtn");
-const infoText = document.getElementById("infoText");
-
-let gameCount = 0;
-const knowledgeBank = [
-  "The Library of Alexandria was one of the largest and most significant libraries of the ancient world.",
-  "The Antikythera mechanism is considered the first analog computer in history.",
-  "The pyramids of Giza are aligned with incredible precision to cardinal points.",
-  "Ancient Sumerians used a base-60 numbering system that we still use in timekeeping.",
-  "The Rosetta Stone was key to deciphering Egyptian hieroglyphs.",
-  "Stonehenge is believed to be an ancient astronomical calendar.",
-  "The Nazca Lines in Peru were created by an ancient civilization and are best seen from the sky.",
-  "The Code of Hammurabi is one of the earliest written legal codes.",
-  "The Olmec civilization created colossal head sculptures carved from basalt.",
-  "The Great Zimbabwe ruins were the center of a powerful African kingdom in the Middle Ages.",
-  "The Mayan civilization had an advanced calendar system that included the concept of zero.",
-  "The Vedas are among the oldest sacred texts in human history, originating in ancient India.",
-  "The Epic of Gilgamesh is one of the oldest surviving works of literature.",
-  "The Terra Cotta Army was buried with China's first Emperor Qin Shi Huang to protect him in the afterlife.",
-  "The Indus Valley Civilization had sophisticated urban planning and drainage systems."
+// Data: 20 knowledge entries with title + content
+const knowledgeEntries = [
+  {
+    title: "The Great Pyramid of Giza",
+    content: "Built as a tomb for Pharaoh Khufu, it is the oldest and largest of the Egyptian pyramids.",
+    miniGame: "mathQuiz",
+  },
+  {
+    title: "Stonehenge",
+    content: "A prehistoric monument in England consisting of a ring of standing stones.",
+    miniGame: "memorySequence",
+  },
+  {
+    title: "Rosetta Stone",
+    content: "An artifact inscribed with the same text in three scripts, key to deciphering Egyptian hieroglyphs.",
+    miniGame: "patternRecognition",
+  },
+  {
+    title: "Antikythera Mechanism",
+    content: "An ancient Greek analog computer used to predict astronomical positions.",
+    miniGame: "reactionTest",
+  },
+  {
+    title: "Dead Sea Scrolls",
+    content: "Ancient Jewish religious manuscripts discovered near the Dead Sea.",
+    miniGame: "multipleChoice",
+  },
+  {
+    title: "Machu Picchu",
+    content: "A 15th-century Inca citadel located high in the Andes Mountains in Peru.",
+    miniGame: "wordUnscramble",
+  },
+  {
+    title: "Terracotta Army",
+    content: "Thousands of life-sized clay soldiers buried with China’s first Emperor Qin Shi Huang.",
+    miniGame: "logicPuzzle",
+  },
+  {
+    title: "Nazca Lines",
+    content: "Large geoglyphs etched into the desert floor in southern Peru.",
+    miniGame: "numberGuessing",
+  },
+  {
+    title: "Code of Hammurabi",
+    content: "One of the oldest deciphered writings of significant length, a Babylonian code of law.",
+    miniGame: "trueFalseQuiz",
+  },
+  {
+    title: "Babylonian Astronomy",
+    content: "Ancient Babylonians developed detailed records and theories about stars and planets.",
+    miniGame: "colorMatching",
+  },
+  // New 10 entries
+  {
+    title: "Voynich Manuscript",
+    content: "An illustrated codex hand-written in an unknown writing system, still undeciphered.",
+    miniGame: "mathQuiz",
+  },
+  {
+    title: "Easter Island Moai",
+    content: "Monolithic human figures carved by the Rapa Nui people on Easter Island.",
+    miniGame: "memorySequence",
+  },
+  {
+    title: "Library of Alexandria",
+    content: "One of the largest and most significant libraries of the ancient world, lost to fire.",
+    miniGame: "patternRecognition",
+  },
+  {
+    title: "Phaistos Disc",
+    content: "A disk of fired clay from Crete with undeciphered symbols.",
+    miniGame: "reactionTest",
+  },
+  {
+    title: "Hanging Gardens of Babylon",
+    content: "One of the Seven Wonders, described as an extraordinary series of tiered gardens.",
+    miniGame: "multipleChoice",
+  },
+  {
+    title: "Cave Paintings of Lascaux",
+    content: "Paleolithic cave paintings in southwestern France depicting large animals.",
+    miniGame: "wordUnscramble",
+  },
+  {
+    title: "Sumerian Cuneiform",
+    content: "The earliest known writing system developed by the ancient Sumerians.",
+    miniGame: "logicPuzzle",
+  },
+  {
+    title: "Oracle Bones",
+    content: "Animal bones used for divination during the Shang dynasty in China.",
+    miniGame: "numberGuessing",
+  },
+  {
+    title: "Chichen Itza",
+    content: "A large pre-Columbian archaeological site built by the Maya civilization in Mexico.",
+    miniGame: "trueFalseQuiz",
+  },
+  {
+    title: "The Silk Road",
+    content: "Ancient trade routes connecting East and West, vital for cultural exchange.",
+    miniGame: "colorMatching",
+  },
 ];
 
-// Start MiniGame Dispatcher
-function runMiniGame() {
-  const gameType = gameCount % 10;
-  miniGame.innerHTML = "";
-  infoText.innerText = "Complete the mini-game to unlock ancient secrets.";
-  switch (gameType) {
-    case 0:
-      mathMiniGame();
+// Game state
+let currentIndex = 0;
+const totalEntries = knowledgeEntries.length;
+
+// DOM Elements
+const startBtn = document.getElementById("startGameBtn");
+const nextBtn = document.getElementById("nextGameBtn");
+const miniGameDiv = document.getElementById("miniGame");
+const knowledgeSection = document.getElementById("knowledgeSection");
+const knowledgeText = document.getElementById("knowledgeText");
+const infoText = document.getElementById("infoText");
+const resetBtn = document.getElementById("resetProgressBtn");
+
+// Load progress from localStorage
+function loadProgress() {
+  const saved = localStorage.getItem("ancientArchivesProgress");
+  if (saved) {
+    currentIndex = parseInt(saved, 10);
+    if (isNaN(currentIndex) || currentIndex >= totalEntries) currentIndex = 0;
+  }
+}
+function saveProgress() {
+  localStorage.setItem("ancientArchivesProgress", currentIndex);
+}
+
+// Reset progress handler
+resetBtn.onclick = () => {
+  if (confirm("Are you sure you want to reset your progress?")) {
+    currentIndex = 0;
+    saveProgress();
+    knowledgeSection.classList.add("hidden");
+    miniGameDiv.innerHTML = "";
+    startBtn.disabled = false;
+    infoText.textContent = "Progress reset. Click start to begin.";
+  }
+};
+
+// Show knowledge and prepare for next game
+function revealKnowledge() {
+  const entry = knowledgeEntries[currentIndex];
+  knowledgeText.innerHTML = `<strong>${entry.title}</strong><br>${entry.content}`;
+  knowledgeSection.classList.remove("hidden");
+  startBtn.style.display = "none";
+  miniGameDiv.innerHTML = "";
+  infoText.textContent = `You unlocked knowledge about: ${entry.title}`;
+  nextBtn.style.display = currentIndex + 1 < totalEntries ? "inline-block" : "none";
+}
+
+// Go to next knowledge and game
+nextBtn.onclick = () => {
+  currentIndex++;
+  if (currentIndex >= totalEntries) {
+    infoText.textContent = "All knowledge unlocked! Thanks for playing Ancient Archives.";
+    nextBtn.style.display = "none";
+    knowledgeSection.classList.add("hidden");
+    startBtn.style.display = "none";
+    miniGameDiv.innerHTML = "";
+  } else {
+    knowledgeSection.classList.add("hidden");
+    startBtn.style.display = "inline-block";
+    startBtn.disabled = false;
+    infoText.textContent = `Get ready to unlock: ${knowledgeEntries[currentIndex].title}`;
+  }
+  saveProgress();
+};
+
+// Mini-game dispatcher
+startBtn.onclick = () => {
+  startBtn.disabled = true;
+  knowledgeSection.classList.add("hidden");
+  const miniGameType = knowledgeEntries[currentIndex].miniGame;
+  runMiniGame(miniGameType);
+};
+
+function runMiniGame(type) {
+  miniGameDiv.innerHTML = "";
+  switch (type) {
+    case "mathQuiz":
+      mathQuiz();
       break;
-    case 1:
-      memoryMiniGame();
+    case "memorySequence":
+      memorySequence();
       break;
-    case 2:
-      patternMiniGame();
+    case "patternRecognition":
+      patternRecognition();
       break;
-    case 3:
-      reactionMiniGame();
+    case "reactionTest":
+      reactionTest();
       break;
-    case 4:
-      multipleChoiceMiniGame();
+    case "multipleChoice":
+      multipleChoice();
       break;
-    case 5:
-      unscrambleMiniGame();
+    case "wordUnscramble":
+      wordUnscramble();
       break;
-    case 6:
-      logicMiniGame();
+    case "logicPuzzle":
+      logicPuzzle();
       break;
-    case 7:
-      numberGuessMiniGame();
+    case "numberGuessing":
+      numberGuessing();
       break;
-    case 8:
-      trueFalseMiniGame();
+    case "trueFalseQuiz":
+      trueFalseQuiz();
       break;
-    case 9:
-      colorMatchMiniGame();
+    case "colorMatching":
+      colorMatching();
       break;
+    default:
+      infoText.textContent = "Unknown mini-game.";
+      startBtn.disabled = false;
   }
 }
 
-// Mini-game 0: Math Quiz (basic)
-function mathMiniGame() {
-  miniGame.innerHTML = `<p>Solve this: What is 3 + 4?</p>
-  <input id='answer' type='text'>
-  <button onclick='checkAnswer()'>Submit</button>`;
+// Mini-Game Implementations:
+
+// 1. mathQuiz: simple arithmetic question
+function mathQuiz() {
+  const a = Math.floor(Math.random() * 20) + 1;
+  const b = Math.floor(Math.random() * 20) + 1;
+  const op = ["+", "-", "*"][Math.floor(Math.random() * 3)];
+  let correctAns;
+  switch (op) {
+    case "+": correctAns = a + b; break;
+    case "-": correctAns = a - b; break;
+    case "*": correctAns = a * b; break;
+  }
+
+  miniGameDiv.innerHTML = `
+    <p>Solve: ${a} ${op} ${b} = ?</p>
+    <input type="text" id="mathInput" autocomplete="off" />
+    <button id="submitMath">Submit</button>
+    <p id="feedback"></p>
+  `;
+
+  document.getElementById("submitMath").onclick = () => {
+    const val = Number(document.getElementById("mathInput").value);
+    const feedback = document.getElementById("feedback");
+    if (val === correctAns) {
+      feedback.textContent = "Correct! Knowledge unlocked.";
+      endMiniGame();
+    } else {
+      feedback.textContent = "Incorrect, try again.";
+    }
+  };
 }
 
-function checkAnswer() {
-  const answer = document.getElementById("answer").value.trim();
-  if (gameCount % 10 === 0 && answer == "7") {
-    unlockKnowledge();
-  } else if (gameCount % 10 === 1) {
-    checkMemoryAnswer(answer);
-  } else if (gameCount % 10 === 2) {
-    checkPatternAnswer(answer);
-  } else if (gameCount % 10 === 4) {
-    checkMultipleChoice(answer);
-  } else if (gameCount % 10 === 5) {
-    checkUnscramble(answer);
-  } else if (gameCount % 10 === 6) {
-    checkLogic(answer);
-  } else if (gameCount % 10 === 7) {
-    checkNumberGuess(answer);
-  } else if (gameCount % 10 === 8) {
-    checkTrueFalse(answer);
-  }
-  else {
-    alert("Please complete the task as instructed.");
-  }
+// 2. memorySequence: memorize and repeat sequence of numbers
+function memorySequence() {
+  const seqLength = 4;
+  const sequence = Array.from({ length: seqLength }, () => Math.floor(Math.random() * 9) + 1);
+  miniGameDiv.innerHTML = `<p>Memorize this sequence:</p><p id="seqDisplay">${sequence.join(" ")}</p><button id="startRecall">Start Recall</button><div id="recallArea" class="hidden"></div><p id="feedback"></p>`;
+
+  const seqDisplay = document.getElementById("seqDisplay");
+  const recallArea = document.getElementById("recallArea");
+  const feedback = document.getElementById("feedback");
+  const startRecall = document.getElementById("startRecall");
+
+  // Hide sequence after 3 seconds
+  setTimeout(() => {
+    seqDisplay.textContent = "••••";
+  }, 3000);
+
+  startRecall.onclick = () => {
+    startRecall.disabled = true;
+    recallArea.classList.remove("hidden");
+    recallArea.innerHTML = `
+      <p>Enter the sequence separated by spaces:</p>
+      <input type="text" id="recallInput" autocomplete="off" />
+      <button id="submitRecall">Submit</button>
+    `;
+    document.getElementById("submitRecall").onclick = () => {
+      const inputSeq = document.getElementById("recallInput").value.trim().split(/\s+/).map(Number);
+      if (inputSeq.length !== seqLength) {
+        feedback.textContent = "Wrong length. Try again.";
+        return;
+      }
+      if (inputSeq.every((num, idx) => num === sequence[idx])) {
+        feedback.textContent = "Correct! Knowledge unlocked.";
+        endMiniGame();
+      } else {
+        feedback.textContent = "Incorrect sequence, try again.";
+      }
+    };
+  };
 }
 
-// Mini-game 1: Memory sequence
-let memorySequence = [];
-let memoryIndex = 0;
-function memoryMiniGame() {
-  memorySequence = generateMemorySequence(5);
-  memoryIndex = 0;
-  miniGame.innerHTML = `<p>Remember this sequence:</p><p id='sequence'>${memorySequence.join(" ")}</p><button onclick='startMemoryRecall()'>Start Recall</button>`;
+// 3. patternRecognition: find the next number in a sequence
+function patternRecognition() {
+  // Simple pattern: arithmetic progression
+  const start = Math.floor(Math.random() * 10) + 1;
+  const diff = Math.floor(Math.random() * 5) + 1;
+  const seq = [start, start + diff, start + diff * 2];
+  const correct = start + diff * 3;
+
+  miniGameDiv.innerHTML = `
+    <p>What is the next number in this sequence?</p>
+    <p>${seq.join(", ")}, ?</p>
+    <input type="text" id="patternInput" autocomplete="off" />
+    <button id="submitPattern">Submit</button>
+    <p id="feedback"></p>
+  `;
+
+  document.getElementById("submitPattern").onclick = () => {
+    const val = Number(document.getElementById("patternInput").value);
+    const feedback = document.getElementById("feedback");
+    if (val === correct) {
+      feedback.textContent = "Correct! Knowledge unlocked.";
+      endMiniGame();
+    } else {
+      feedback.textContent = "Incorrect, try again.";
+    }
+  };
 }
 
-function generateMemorySequence(length) {
-  const chars = "123456789";
-  let seq = [];
-  for (let i = 0; i < length; i++) {
-    seq.push(chars.charAt(Math.floor(Math.random() * chars.length)));
+// 4. reactionTest: click button after it appears
+function reactionTest() {
+  miniGameDiv.innerHTML = `
+    <p>Wait for the button to appear, then click it as fast as you can!</p>
+    <div id="reactionArea"></div>
+    <p id="feedback"></p>
+  `;
+  const reactionArea = document.getElementById("reactionArea");
+  const feedback = document.getElementById("feedback");
+
+  let startTime;
+
+  function showButton() {
+    reactionArea.innerHTML = `<button id="reactBtn">Click me!</button>`;
+    const btn = document.getElementById("reactBtn");
+    startTime = Date.now();
+
+    btn.onclick = () => {
+      const reactionTime = Date.now() - startTime;
+      feedback.textContent = `Your reaction time: ${reactionTime} ms.`;
+      if (reactionTime < 1000) {
+        feedback.textContent += " Great! Knowledge unlocked.";
+        endMiniGame();
+      } else {
+        feedback.textContent += " Too slow, try again.";
+        reactionArea.innerHTML = "";
+        setTimeout(showButton, 1500);
+      }
+    };
   }
-  return seq;
+
+  reactionArea.innerHTML = "<p>Get ready...</p>";
+  setTimeout(showButton, 2000);
 }
 
-function startMemoryRecall() {
-  miniGame.innerHTML = `<p>Enter the sequence, numbers separated by spaces:</p><input id='answer' type='text'><button onclick='checkAnswer()'>Submit</button>`;
-}
+// 5. multipleChoice: choose the correct answer
+function multipleChoice() {
+  const question = "Which ancient civilization built the Machu Picchu?";
+  const options = ["Aztec", "Maya", "Inca", "Olmec"];
+  const correct = "Inca";
 
-function checkMemoryAnswer(answer) {
-  if (!answer) {
-    alert("Please enter the sequence.");
-    return;
-  }
-  const inputSeq = answer.trim().split(/\s+/);
-  if (inputSeq.length !== memorySequence.length) {
-    alert("Incorrect length, try again.");
-    return;
-  }
-  for (let i = 0; i < memorySequence.length; i++) {
-    if (inputSeq[i] !== memorySequence[i]) {
-      alert("Incorrect sequence, try again.");
+  miniGameDiv.innerHTML = `
+    <p>${question}</p>
+    ${options
+      .map(
+        (opt, i) =>
+          `<div><input type="radio" id="opt${i}" name="mc" value="${opt}" />
+           <label for="opt${i}">${opt}</label></div>`
+      )
+      .join("")}
+    <button id="submitMC">Submit</button>
+    <p id="feedback"></p>
+  `;
+
+  document.getElementById("submitMC").onclick = () => {
+    const selected = [...document.getElementsByName("mc")].find((el) => el.checked);
+    const feedback = document.getElementById("feedback");
+    if (!selected) {
+      feedback.textContent = "Please select an option.";
       return;
     }
-  }
-  unlockKnowledge();
+    if (selected.value === correct) {
+      feedback.textContent = "Correct! Knowledge unlocked.";
+      endMiniGame();
+    } else {
+      feedback.textContent = "Incorrect, try again.";
+    }
+  };
 }
 
-// Mini-game 2: Pattern recognition (simple arithmetic)
-function patternMiniGame() {
-  miniGame.innerHTML = `<p>Find the next number: 2, 4, 6, 8, ?</p><input id='answer' type='text'><button onclick='checkAnswer()'>Submit</button>`;
-}
-function checkPatternAnswer(answer) {
-  if (answer === "10") {
-    unlockKnowledge();
-  } else {
-    alert("Try again!");
-  }
+// 6. wordUnscramble: unscramble a word
+function wordUnscramble() {
+  const word = "terracotta";
+  const scrambled = shuffleString(word);
+
+  miniGameDiv.innerHTML = `
+    <p>Unscramble the word: <strong>${scrambled}</strong></p>
+    <input type="text" id="unscrambleInput" autocomplete="off" />
+    <button id="submitUnscramble">Submit</button>
+    <p id="feedback"></p>
+  `;
+
+  document.getElementById("submitUnscramble").onclick = () => {
+    const val = document.getElementById("unscrambleInput").value.toLowerCase().trim();
+    const feedback = document.getElementById("feedback");
+    if (val === word) {
+      feedback.textContent = "Correct! Knowledge unlocked.";
+      endMiniGame();
+    } else {
+      feedback.textContent = "Incorrect, try again.";
+    }
+  };
 }
 
-// Mini-game 3: Reaction test
-let reactionTimeout;
-function reactionMiniGame() {
-  miniGame.innerHTML = `<p>Click the button as soon as it appears.</p><div id='reactionArea'></div>`;
-  infoText.innerText = "Wait for the button...";
-  const reactionArea = document.getElementById("reactionArea");
+// Helper: shuffle string
+function shuffleString(str) {
+  const arr = str.split("");
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.join("");
+}
+
+// 7. logicPuzzle: simple riddle
+function logicPuzzle() {
+  const riddle = "I speak without a mouth and hear without ears. I have nobody, but I come alive with wind. What am I?";
+  const answer = "echo";
+
+  miniGameDiv.innerHTML = `
+    <p>${riddle}</p>
+    <input type="text" id="riddleInput" autocomplete="off" />
+    <button id="submitRiddle">Submit</button>
+    <p id="feedback"></p>
+  `;
+
+  document.getElementById("submitRiddle").onclick = () => {
+    const val = document.getElementById("riddleInput").value.toLowerCase().trim();
+    const feedback = document.getElementById("feedback");
+    if (val === answer) {
+      feedback.textContent = "Correct! Knowledge unlocked.";
+      endMiniGame();
+    } else {
+      feedback.textContent = "Incorrect, try again.";
+    }
+  };
+}
+
+// 8. numberGuessing: guess a number 1-15
+function numberGuessing() {
+  const target = Math.floor(Math.random() * 15) + 1;
+
+  miniGameDiv.innerHTML = `
+    <p>Guess a number between 1 and 15.</p>
+    <input type="number" id="guessInput" min="1" max="15" autocomplete="off" />
+    <button id="submitGuess">Submit</button>
+    <p id="feedback"></p>
+  `;
+
+  document.getElementById("submitGuess").onclick = () => {
+    const val = Number(document.getElementById("guessInput").value);
+    const feedback = document.getElementById("feedback");
+    if (!val || val < 1 || val > 15) {
+      feedback.textContent = "Please enter a valid number.";
+      return;
+    }
+    if (val === target) {
+      feedback.textContent = "Correct! Knowledge unlocked.";
+      endMiniGame();
+    } else if (val < target) {
+      feedback.textContent = "Too low. Try again.";
+    } else {
+      feedback.textContent = "Too high. Try again.";
+    }
+  };
+}
+
+// 9. trueFalseQuiz: true/false question
+function trueFalseQuiz() {
+  const statement = "The Hanging Gardens of Babylon still exist today.";
+  const correct = false;
+
+  miniGameDiv.innerHTML = `
+    <p>True or False: ${statement}</p>
+    <div>
+      <input type="radio" id="true" name="tf" value="true" />
+      <label for="true">True</label>
+    </div>
+    <div>
+      <input type="radio" id="false" name="tf" value="false" />
+      <label for="false">False</label>
+    </div>
+    <button id="submitTF">Submit</button>
+    <p id="feedback"></p>
+  `;
+
+  document.getElementById("submitTF").onclick = () => {
+    const selected = [...document.getElementsByName("tf")].find((el) => el.checked);
+    const feedback = document.getElementById("feedback");
+    if (!selected) {
+      feedback.textContent = "Please select True or False.";
+      return;
+    }
+    const userVal = selected.value === "true";
+    if (userVal === correct) {
+      feedback.textContent = "Correct! Knowledge unlocked.";
+      endMiniGame();
+    } else {
+      feedback.textContent = "Incorrect, try again.";
+    }
+  };
+}
+
+// 10. colorMatching: simple color memory test
+function colorMatching() {
+  // Show a color, then ask which color was shown
+  const colors = ["Red", "Blue", "Green", "Yellow", "Orange"];
+  const chosenColor = colors[Math.floor(Math.random() * colors.length)];
+
+  miniGameDiv.innerHTML = `<p>Memorize this color:</p><div style="width:80px;height:80px;margin: 0 auto; background:${chosenColor.toLowerCase()}; border-radius: 10px;"></div><button id="startRecall">Recall Color</button><div id="recallArea" class="hidden"></div><p id="feedback"></p>`;
+
+  const startRecall = document.getElementById("startRecall");
+  const recallArea = document.getElementById("recallArea");
+  const feedback = document.getElementById("feedback");
+
   setTimeout(() => {
-    reactionArea.innerHTML = `<button id='reactBtn'>Click Me!</button>`;
-    const reactBtn = document.getElementById("reactBtn");
-    reactBtn.onclick = () => {
-      clearTimeout(reactionTimeout);
-      unlockKnowledge();
+    // Hide color block after 2.5 seconds
+    const div = miniGameDiv.querySelector("div");
+    if (div) div.style.backgroundColor = "#111";
+  }, 2500);
+
+  startRecall.onclick = () => {
+    startRecall.disabled = true;
+    recallArea.classList.remove("hidden");
+    recallArea.innerHTML = colors
+      .map(
+        (color, i) =>
+          `<div><input type="radio" id="color${i}" name="color" value="${color}" />
+           <label for="color${i}">${color}</label></div>`
+      )
+      .join("") + '<button id="submitColor">Submit</button>';
+
+    document.getElementById("submitColor").onclick = () => {
+      const selected = [...document.getElementsByName("color")].find((el) => el.checked);
+      if (!selected) {
+        feedback.textContent = "Please select a color.";
+        return;
+      }
+      if (selected.value === chosenColor) {
+        feedback.textContent = "Correct! Knowledge unlocked.";
+        endMiniGame();
+      } else {
+        feedback.textContent = "Incorrect, try again.";
+      }
     };
-    infoText.innerText = "Click now!";
-    reactionTimeout = setTimeout(() => {
-      alert("Too slow, try again.");
-      runMiniGame();
-    }, 3000);
-  }, Math.random() * 2000 + 1000);
+  };
 }
 
-// Mini-game 4: Multiple Choice
-function multipleChoiceMiniGame() {
-  miniGame.innerHTML = `<p>Which ancient artifact helped decode Egyptian hieroglyphs?</p>
-  <input id='answer' type='text' placeholder='Type your answer here'>
-  <button onclick='checkAnswer()'>Submit</button>`;
-}
-function checkMultipleChoice(answer) {
-  if (answer.toLowerCase().includes("rosetta stone")) {
-    unlockKnowledge();
-  } else {
-    alert("Incorrect, try again.");
-  }
+// End mini-game - show knowledge and enable next
+function endMiniGame() {
+  startBtn.disabled = false;
+  revealKnowledge();
 }
 
-// Mini-game 5: Word Unscramble
-const scrambleWord = "HENGEOSTN";
-function unscrambleMiniGame() {
-  miniGame.innerHTML = `<p>Unscramble the letters to find a famous ancient monument: ${scrambleWord}</p>
-  <input id='answer' type='text'>
-  <button onclick='checkAnswer()'>Submit</button>`;
-}
-function checkUnscramble(answer) {
-  if (answer.toLowerCase() === "stonehenge") {
-    unlockKnowledge();
-  } else {
-    alert("Try again!");
-  }
-}
-
-// Mini-game 6: Logic Puzzle
-function logicMiniGame() {
-  miniGame.innerHTML = `<p>If all pyramids are monuments and all monuments are ancient, are all pyramids ancient? (yes/no)</p>
-  <input id='answer' type='text'>
-  <button onclick='checkAnswer()'>Submit</button>`;
-}
-function checkLogic(answer) {
-  if (answer.toLowerCase() === "yes") {
-    unlockKnowledge();
-  } else {
-    alert("Try again!");
-  }
-}
-
-// Mini-game 7: Number Guessing
-let guessNumber = Math.floor(Math.random() * 10) + 1;
-function numberGuessMiniGame() {
-  miniGame.innerHTML = `<p>Guess the number between 1 and 10.</p><input id='answer' type='text'><button onclick='checkAnswer()'>Submit</button>`;
-}
-function checkNumberGuess(answer) {
-  const guess = parseInt(answer);
-  if (guess === guessNumber) {
-    unlockKnowledge();
-  } else if (guess > guessNumber) {
-    alert("Too high!");
-  } else if (guess < guessNumber) {
-    alert("Too low!");
-  } else {
-    alert("Invalid input.");
-  }
-}
-
-// Mini-game 8: True/False
-function trueFalseMiniGame() {
-  miniGame.innerHTML = `<p>True or False: The Epic of Gilgamesh is one of the oldest surviving works of literature.</p>
-  <input id='answer' type='text'>
-  <button onclick='checkAnswer()'>Submit</button>`;
-}
-function checkTrueFalse(answer) {
-  if (answer.toLowerCase() === "true") {
-    unlockKnowledge();
-  } else {
-    alert("Try again!");
-  }
-}
-
-// Mini-game 9: Color Matching (basic)
-const colors = ["red", "blue", "green", "yellow"];
-const correctColor = colors[Math.floor(Math.random() * colors.length)];
-function colorMatchMiniGame() {
-  let buttons = colors.map(c => `<button onclick='checkColor("${c}")' style='background:${c};color:#fff;margin:5px;padding:10px 15px;border:none;border-radius:5px;'>${c}</button>`).join("");
-  miniGame.innerHTML = `<p>Click the <strong>${correctColor}</strong> button.</p>` + buttons;
-}
-function checkColor(selected) {
-  if (selected === correctColor) {
-    unlockKnowledge();
-  } else {
-    alert("Wrong color, try again.");
-  }
-}
-
-// Unlock knowledge and prepare next
-function unlockKnowledge() {
-  const knowledge = knowledgeBank[gameCount % knowledgeBank.length];
-  knowledgeText.innerText = knowledge;
-  document.getElementById("game").classList.add("hidden");
+// Initialize on load
+loadProgress();
+infoText.textContent = `Get ready to unlock: ${knowledgeEntries[currentIndex].title}`;
+if (currentIndex > 0) {
   knowledgeSection.classList.remove("hidden");
-  gameCount++;
-  if(gameCount % 10 === 7) { // reset guess number for next round
-    guessNumber = Math.floor(Math.random() * 10) + 1;
-  }
+  revealKnowledge();
 }
-
-startGameBtn.addEventListener("click", () => {
-  runMiniGame();
-});
-
-nextGameBtn.addEventListener("click", () => {
-  knowledgeSection.classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
-  infoText.innerText = "Complete the next mini-game to reveal more.";
-  runMiniGame();
-});
-
