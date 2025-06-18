@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ancient Knowledge Quest</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ancient Archives</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>Ancient Knowledge Quest</h1>
+  <div id="container">
+    <h1>Ancient Archives</h1>
+    <p id="infoText">Click start to unlock lost knowledge through mini-games.</p>
+
     <div id="game">
-      <p id="infoText">Complete the mini-game to unlock ancient secrets.</p>
-      <div id="miniGame"></div>
       <button id="startGameBtn">Start Mini-Game</button>
+      <div id="miniGame"></div>
     </div>
-    <div id="knowledgeSection" class="hidden">
+
+    <section id="knowledgeSection" class="hidden">
       <h2>Unlocked Knowledge</h2>
       <p id="knowledgeText"></p>
-      <button id="nextGameBtn">Next Challenge</button>
-    </div>
+      <button id="nextGameBtn">Next Mini-Game</button>
+    </section>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
