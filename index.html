@@ -1,30 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ancient Archives: Chronicles Unveiled</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MindScape - The Forgotten Cipher</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="container">
-    <h1>Ancient Archives</h1>
-    <p id="infoText">Click start to unlock lost knowledge through mini-games.</p>
-
-    <div id="game">
-      <button id="startGameBtn">Start Mini-Game</button>
-      <div id="miniGame"></div>
-    </div>
-
-    <section id="knowledgeSection" class="hidden">
-      <h2>Unlocked Knowledge</h2>
-      <p id="knowledgeText"></p>
-      <button id="nextGameBtn">Next Mini-Game</button>
-    </section>
-
-    <button id="resetProgressBtn" class="small-btn">Reset Progress</button>
+  <div id="gameContainer">
+    <h1>🧠 MindScape</h1>
+    <p><strong>Update:</strong> The Forgotten Cipher (v1.4)</p>
+    <div id="knowledgeDisplay">Loading...</div>
+    <button id="startMiniGameBtn" onclick="startMiniGame()">Start Mini-Game</button>
+    <div id="miniGameContainer"></div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    let currentIndex = 0;
+    const knowledgeEntries = [
+      { title: "The Antikythera Mechanism", content: "An ancient Greek analog computer used to predict astronomical positions." },
+      { title: "Library of Alexandria", content: "One of the largest and most significant libraries of the ancient world, lost to history." },
+      { title: "Voynich Manuscript", content: "A mysterious illustrated codex, written in an undeciphered script." },
+      { title: "Baghdad Battery", content: "Clay jars from ancient Iraq that some believe functioned as early batteries." },
+      { title: "Gobekli Tepe", content: "A massive ancient temple complex predating Stonehenge by 6,000 years." },
+      { title: "Nazca Lines", content: "Geoglyphs etched into the Peruvian desert, visible only from the air." },
+      { title: "Zhang Heng's Seismoscope", content: "A Han dynasty invention that detected earthquakes using bronze dragons." },
+      { title: "The Bimini Road", content: "A submerged rock formation believed by some to be remnants of Atlantis." },
+      { title: "The Emerald Tablet", content: "A Hermetic text said to hold secrets of alchemy and the universe." },
+      { title: "The Piri Reis Map", content: "A 16th-century map that some claim shows Antarctica before it was covered in ice." },
+      { title: "Shigir Idol", content: "The world’s oldest known wooden sculpture, over 11,000 years old." },
+      { title: "Sanskrit Vimanas", content: "Mythical flying machines described in ancient Indian texts." },
+      { title: "Roman Concrete", content: "A durable building material with secrets lost for centuries." },
+      { title: "Mayan Codices", content: "Ancient bark-paper books, most destroyed during colonial conquest." },
+      { title: "The Copper Scroll", content: "A Dead Sea Scroll listing locations of hidden treasures." },
+      { title: "Olmec Colossal Heads", content: "Massive stone heads carved by the Olmec civilization." },
+      { title: "The Ark of the Covenant", content: "A gold-covered wooden chest containing the Ten Commandments." },
+      { title: "Tartaria Tablets", content: "Ancient European artifacts with some of the earliest known writing." },
+      { title: "Sumerian King List", content: "A manuscript listing kings with mythical lifespans ruling before a great flood." },
+      { title: "Sibylline Books", content: "Prophetic scrolls of ancient Rome consulted in times of crisis." }
+    ];
+
+    function sanitizeInput(str) {
+      return str.toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+    }
+
+    function clearMiniGameUI() {
+      const mg = document.getElementById("miniGameContainer");
+      if (mg) mg.innerHTML = '';
+    }
+
+    function endMiniGame() {
+      document.getElementById("startMiniGameBtn").disabled = false;
+      revealKnowledge();
+      clearMiniGameUI();
+    }
+
+    function startMiniGame() {
+      clearMiniGameUI();
+      document.getElementById("startMiniGameBtn").disabled = true;
+      const type = Math.floor(Math.random() * 5);
+      switch (type) {
+        case 0: logicPuzzle(); break;
+        case 1: unscrambleWord(); break;
+        case 2: trueFalseQuiz(); break;
+        case 3: colorMatching(); break;
+        case 4: numberGuessing(); break;
+      }
+    }
+
+    function revealKnowledge() {
+      const entry = knowledgeEntries[currentIndex];
+      document.getElementById("knowledgeDisplay").innerHTML = `
+        <h2>${entry.title}</h2>
+        <p>${entry.content}</p>
+      `;
+      currentIndex++;
+      saveProgress();
+    }
+
+    function saveProgress() {
+      localStorage.setItem("mindscapeIndex", currentIndex);
+    }
+
+    function loadProgress() {
+      currentIndex = parseInt(localStorage.getItem("mindscapeIndex")) || 0;
+    }
+
+    function logicPuzzle() {
+      const container = document.getElementById("miniGameContainer");
+      container.innerHTML = `<p>What comes next in the sequence? 3, 6, 9, ?</p>
+        <input id="logicAnswer"><button onclick="checkLogic()">Submit</button>`;
+    }
+
+    function checkLogic() {
+      const val = sanitizeInput(document.getElementById("logicAnswer").value);
+      if (val === '12') endMiniGame();
+    }
+
+    function unscrambleWord() {
+      const container = document.getElementById("miniGameContainer");
+      container.innerHTML = `<p>Unscramble: "kenlodwge"</p>
+        <input id="unscramble"><button onclick="checkUnscramble()">Submit</button>`;
+    }
+
+    function checkUnscramble() {
+      const val = sanitizeInput(document.getElementById("unscramble").value);
+      if (val === 'knowledge') endMiniGame();
+    }
+
+    function trueFalseQuiz() {
+      const container = document.getElementById("miniGameContainer");
+      container.innerHTML = `<p>The Library of Alexandria still exists. True or False?</p>
+        <input id="tf"><button onclick="checkTF()">Submit</button>`;
+    }
+
+    function checkTF() {
+      const val = sanitizeInput(document.getElementById("tf").value);
+      if (val === 'false') endMiniGame();
+    }
+
+    function colorMatching() {
+      const container = document.getElementById("miniGameContainer");
+      const color = `rgb(${rand255()},${rand255()},${rand255()})`;
+      container.innerHTML = `<div id="colorBox" style="width:100px;height:100px;background:${color};margin:10px auto;"></div>
+        <button id="startRecall">Recall Color</button>
+        <input id="recallInput" placeholder="rgb(r,g,b)"><button onclick="checkColor('${color}')">Submit</button>`;
+      setTimeout(() => document.getElementById("colorBox").style.backgroundColor = "#111", 2000);
+    }
+
+    function checkColor(correctColor) {
+      const input = sanitizeInput(document.getElementById("recallInput").value);
+      const correct = sanitizeInput(correctColor);
+      if (input === correct) endMiniGame();
+    }
+
+    function rand255() {
+      return Math.floor(Math.random() * 256);
+    }
+
+    function numberGuessing() {
+      const num = Math.floor(Math.random() * 10) + 1;
+      const container = document.getElementById("miniGameContainer");
+      container.innerHTML = `<p>Guess the number between 1 and 10</p>
+        <input id="guess"><button onclick="checkGuess(${num})">Submit</button>`;
+    }
+
+    function checkGuess(correct) {
+      const val = parseInt(document.getElementById("guess").value);
+      if (val === correct) endMiniGame();
+    }
+
+    window.onload = () => {
+      loadProgress();
+      if (currentIndex < knowledgeEntries.length) {
+        document.getElementById("knowledgeDisplay").innerHTML = `<p>Get ready to unlock: ${knowledgeEntries[currentIndex].title}</p>`;
+      } else {
+        document.getElementById("knowledgeDisplay").innerHTML = `<h2>All knowledge entries unlocked!</h2>`;
+      }
+    };
+  </script>
 </body>
 </html>
