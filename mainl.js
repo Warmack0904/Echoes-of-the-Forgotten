@@ -10,7 +10,18 @@ const knowledgeBank = [
   "The Library of Alexandria was one of the largest and most significant libraries of the ancient world.",
   "The Antikythera mechanism is considered the first analog computer in history.",
   "The pyramids of Giza are aligned with incredible precision to cardinal points.",
-  "Ancient Sumerians used a base-60 numbering system that we still use in timekeeping."
+  "Ancient Sumerians used a base-60 numbering system that we still use in timekeeping.",
+  "The Rosetta Stone was key to deciphering Egyptian hieroglyphs.",
+  "Stonehenge is believed to be an ancient astronomical calendar.",
+  "The Nazca Lines in Peru were created by an ancient civilization and are best seen from the sky.",
+  "The Code of Hammurabi is one of the earliest written legal codes.",
+  "The Olmec civilization created colossal head sculptures carved from basalt.",
+  "The Great Zimbabwe ruins were the center of a powerful African kingdom in the Middle Ages.",
+  "The Mayan civilization had an advanced calendar system that included the concept of zero.",
+  "The Vedas are among the oldest sacred texts in human history, originating in ancient India.",
+  "The Epic of Gilgamesh is one of the oldest surviving works of literature.",
+  "The Terra Cotta Army was buried with China's first Emperor Qin Shi Huang to protect him in the afterlife.",
+  "The Indus Valley Civilization had sophisticated urban planning and drainage systems."
 ];
 
 function runMiniGame() {
